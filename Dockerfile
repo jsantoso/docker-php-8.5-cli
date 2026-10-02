@@ -73,25 +73,11 @@ RUN /usr/local/bin/docker-php-ext-install pdo_odbc
 
 ADD etc/ImageMagick/policy.xml /etc/ImageMagick-6/policy.xml
 
-RUN pecl install xmlrpc-beta
-RUN docker-php-ext-enable xmlrpc
+RUN pecl install xmlrpc-beta && docker-php-ext-enable xmlrpc \
+    && pecl install redis && docker-php-ext-enable redis \
+    && pecl install amqp-beta && docker-php-ext-enable amqp \
+    && pecl install imagick && docker-php-ext-enable imagick 
 
-RUN pecl install redis
-RUN docker-php-ext-enable redis
-
-RUN pecl install amqp-beta
-RUN docker-php-ext-enable amqp
-
-ARG IMAGICK_VERSION=3.8.0
-
-RUN curl -L -o /tmp/imagick.tar.gz https://github.com/Imagick/imagick/archive/refs/tags/${IMAGICK_VERSION}.tar.gz \
-    && tar --strip-components=1 -xf /tmp/imagick.tar.gz \
-    && phpize \
-    && ./configure \
-    && make \
-    && make install \
-    && echo "extension=imagick.so" > /usr/local/etc/php/conf.d/ext-imagick.ini \
-    && rm -rf /tmp/*
 
 ADD conf.d/php.ini /usr/local/etc/php/conf.d/90-php.ini
 
